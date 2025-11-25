@@ -20,7 +20,7 @@ Product Store Service with UI
 """
 from flask import jsonify, request, abort
 from flask import url_for  # noqa: F401 pylint: disable=unused-import
-from service.models import Product
+from service.models import Product, Category
 from service.common import status  # HTTP Status Codes
 from . import app
 
@@ -98,31 +98,48 @@ def create_products():
 # L I S T   A L L   P R O D U C T S
 ######################################################################
 
-#
-# PLACE YOUR CODE TO LIST ALL PRODUCTS HERE
-#
+@app.route("/products", methods=["GET"])
+def list_products():
+    """List all products with optional filters"""
+    app.logger.info("Request to list Products...")
+
+    name = request.args.get("name")
+    category = request.args.get("category")
+    available = request.args.get("available")
+
+    # Filter by name
+    if name:
+        results = Product.find_by_name(name)
+
+    # Filter by category
+    elif category:
+        try:
+            results = Product.find_by_category(Category[category])
+        except KeyError:
+            abort(status.HTTP_400_BAD_REQUEST, "Invalid category value")
+
+    # Filter by availability
+    elif available is not None:
+        if available.lower() not in ["true", "false"]:
+            abort(status.HTTP_400_BAD_REQUEST, "Available must be true or false")
+        available_bool = available.lower() == "true"
+        results = Product.find_by_availability(available_bool)
+
+    # List all
+    else:
+        results = Product.all()
+
+    return jsonify([product.serialize() for product in results]), status.HTTP_200_OK
+
 
 ######################################################################
 # R E A D   A   P R O D U C T
 ######################################################################
 
-#
-# PLACE YOUR CODE HERE TO READ A PRODUCT
-#
-
-######################################################################
-# U P D A T E   A   P R O D U C T
-######################################################################
-
-#
-# PLACE YOUR CODE TO UPDATE A PRODUCT HERE
-#
-
-######################################################################
-# D E L E T E   A   P R O D U C T
-######################################################################
-
-
-#
-# PLACE YOUR CODE TO DELETE A PRODUCT HERE
-#
+@app.route("/products/<int:product_id>", methods=["GET"])
+def get_products(product_id):
+    """Read a single Product"""
+    app.logger.info("Request for product with id: %s", product_id)
+    
+    product = Product.find(product_id)
+    if not product:
