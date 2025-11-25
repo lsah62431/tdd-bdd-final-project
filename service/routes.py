@@ -143,3 +143,44 @@ def get_products(product_id):
     
     product = Product.find(product_id)
     if not product:
+        abort(status.HTTP_404_NOT_FOUND)
+    
+    return jsonify(product.serialize()), status.HTTP_200_OK
+
+
+######################################################################
+# U P D A T E   A   P R O D U C T
+######################################################################
+
+@app.route("/products/<int:product_id>", methods=["PUT"])
+def update_products(product_id):
+    """Update an existing Product"""
+    app.logger.info("Request to update product with id: %s", product_id)
+
+    product = Product.find(product_id)
+    if not product:
+        abort(status.HTTP_404_NOT_FOUND)
+
+    check_content_type("application/json")
+    data = request.get_json()
+    product.deserialize(data)
+    product.id = product_id
+    product.update()
+
+    return jsonify(product.serialize()), status.HTTP_200_OK
+
+
+######################################################################
+# D E L E T E   A   P R O D U C T
+######################################################################
+
+@app.route("/products/<int:product_id>", methods=["DELETE"])
+def delete_products(product_id):
+    """Delete a Product"""
+    app.logger.info("Request to delete product with id: %s", product_id)
+
+    product = Product.find(product_id)
+    if product:
+        product.delete()
+
+    return "", status.HTTP_204_NO_CONTENT
