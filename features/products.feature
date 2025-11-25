@@ -16,6 +16,9 @@ Scenario: The server is running
     Then I should see "Product Catalog Administration" in the title
     And I should not see "404 Not Found"
 
+###############################################################
+#  CREATE PRODUCT
+###############################################################
 Scenario: Create a Product
     When I visit the "Home Page"
     And I set the "Name" to "Hammer"
@@ -38,3 +41,82 @@ Scenario: Create a Product
     And I should see "True" in the "Available" dropdown
     And I should see "Tools" in the "Category" dropdown
     And I should see "34.95" in the "Price" field
+
+###############################################################
+#  READ PRODUCT
+###############################################################
+Scenario: Read a Product
+    When I visit the "Home Page"
+    And I set the "Id" to "1"
+    And I press the "Retrieve" button
+    Then I should see the message "Success"
+    And I should see "Hat" in the "Name" field
+
+###############################################################
+#  UPDATE PRODUCT
+###############################################################
+Scenario: Update a Product
+    When I visit the "Home Page"
+    And I set the "Id" to "1"
+    And I press the "Retrieve" button
+    Then I should see the message "Success"
+    When I set the "Description" to "Updated red fedora"
+    And I press the "Update" button
+    Then I should see the message "Success"
+    And I should see "Updated red fedora" in the "Description" field
+
+###############################################################
+#  DELETE PRODUCT
+###############################################################
+Scenario: Delete a Product
+    When I visit the "Home Page"
+    And I set the "Id" to "1"
+    And I press the "Delete" button
+    Then I should see the message "Product deleted"
+    When I press the "Clear" button
+    And I set the "Id" to "1"
+    And I press the "Retrieve" button
+    Then I should see the message "Not Found"
+
+###############################################################
+#  LIST ALL PRODUCTS
+###############################################################
+Scenario: List all Products
+    When I visit the "Home Page"
+    And I press the "List" button
+    Then I should see "Hat"
+    And I should see "Shoes"
+    And I should see "Big Mac"
+    And I should see "Sheets"
+
+###############################################################
+#  SEARCH BY CATEGORY
+###############################################################
+Scenario: Search Products by Category
+    When I visit the "Home Page"
+    And I select "CLOTHS" in the "Category" dropdown
+    And I press the "Search" button
+    Then I should see "Hat"
+    And I should see "Shoes"
+    And I should not see "Big Mac"
+
+###############################################################
+#  SEARCH BY AVAILABILITY
+###############################################################
+Scenario: Search Products by Availability
+    When I visit the "Home Page"
+    And I select "True" in the "Available" dropdown
+    And I press the "Search" button
+    Then I should see "Hat"
+    And I should see "Big Mac"
+    And I should not see "Shoes"
+
+###############################################################
+#  SEARCH BY NAME
+###############################################################
+Scenario: Search Products by Name
+    When I visit the "Home Page"
+    And I set the "Name" to "Hat"
+    And I press the "Search" button
+    Then I should see "Hat"
+    And I should not see "Shoes"
